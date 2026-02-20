@@ -1,7 +1,10 @@
 name: CI-CD Pipeline
 
 on:
-  work_dispatch :   
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,24 +16,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Lint JS
+      - name: Lint JavaScript
         run: npx eslint javascript.js || true
 
       - name: Sonar Scan
         uses: SonarSource/sonarqube-scan-action@v2
         with:
-          with:
-            args: >
-             -Dsonar.projectKey=Satyasriramintipalli_practice
-             -Dsonar.organization=YOUR_REAL_ORG_KEY
-
+          args: >
+            -Dsonar.projectKey=Satyasriramintipalli_practice
+            -Dsonar.organization=YOUR_ORG_KEY
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -50,5 +52,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/deploy-pages@v4
+      - name: Deploy
+        uses: actions/deploy-pages@v4
