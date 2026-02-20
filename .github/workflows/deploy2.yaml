@@ -52,11 +52,16 @@ jobs:
       # -----------------------------
       # SonarQube Scan
       # -----------------------------
-      - name: SonarQube Scan
+      - name: Sonar Scan
         uses: SonarSource/sonarqube-scan-action@v2
+        with:
+          args: >
+            -Dsonar.projectKey=Satyasriramintipalli_practice
+            -Dsonar.organization=Satyasriramintipalli
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: https://sonarcloud.io
+
 
       # -----------------------------
       # Build (Static Copy)
