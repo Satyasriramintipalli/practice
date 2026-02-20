@@ -1,0 +1,95 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # -----------------------------
+      # Install Node (for linting)
+      # -----------------------------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Lint Tools
+        run: |
+          npm install -g eslint
+          npm install -g htmlhint
+          npm install -g stylelint
+          npm install -g stylelint-config-standard
+
+      # -----------------------------
+      # Linting
+      # -----------------------------
+      - name: Lint JavaScript
+        run: eslint javascript.js || true
+
+      - name: Lint HTML
+        run: htmlhint index.html || true
+
+      - name: Lint CSS
+        run: stylelint style.css || true
+
+      # -----------------------------
+      # SonarQube Scan
+      # -----------------------------
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      # -----------------------------
+      # Build (Static Copy)
+      # -----------------------------
+      - name: Build Project
+        run: |
+          mkdir dist
+          cp index.html dist/
+          cp style.css dist/
+          cp javascript.js dist/
+
+      # -----------------------------
+      # Upload Artifact
+      # -----------------------------
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: dist/
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
