@@ -1,9 +1,7 @@
 name: CI-CD Pipeline
 
 on:
-  push:
-    branches:
-      - main
+  work_dispatch :   
 
 permissions:
   contents: read
@@ -28,9 +26,11 @@ jobs:
       - name: Sonar Scan
         uses: SonarSource/sonarqube-scan-action@v2
         with:
-          args: >
-            -Dsonar.projectKey=Satyasriramintipalli_practice
-            -Dsonar.organization=Satyasriramintipalli
+          with:
+            args: >
+             -Dsonar.projectKey=Satyasriramintipalli_practice
+             -Dsonar.organization=YOUR_REAL_ORG_KEY
+
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
