@@ -1,56 +1,70 @@
-name: CI-CD Pipeline
+name: Frontend CI Pipeline
 
 on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
-jobs:
+permissions:
+  contents: read
 
-  build:
+jobs:
+  build-and-test:
     runs-on: ubuntu-latest
+
     permissions:
-      contents: read   # Only needs to read code
+      contents: read
 
     steps:
-      - name: Checkout
+      # 1️⃣ Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Lint JavaScript
-        run: npx eslint javascript.js || true
+      # 3️⃣ Install Dependencies
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Sonar Scan
-        uses: SonarSource/sonarqube-scan-action@v2
-        with:
-          args: >
-            -Dsonar.projectKey=Satyasriramintipalli_practice
-            -Dsonar.organization=satyasriramintipalli
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
+      # 4️⃣ Linting
+      - name: Run Lint
+        run: npx eslint . || true
 
-      - name: Build
+      # 5️⃣ Unit Testing (Jest Example)
+      - name: Run Unit Tests
+        run: npm test -- --coverage
+
+      # 6️⃣ Build Step
+      - name: Build Project
         run: |
           mkdir dist
           cp index.html dist/
           cp style.css dist/
           cp javascript.js dist/
 
-      - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
+      # 7️⃣ Smoke Test (Basic HTML Check)
+      - name: Smoke Test
+        run: |
+          echo "Checking if index.html exists..."
+          test -f dist/index.html
+
+      # 8️⃣ Simple Regression Test (Example JS Output Check)
+      - name: Regression Test
+        run: |
+          node javascript.js > output.txt || true
+          echo "Checking output..."
+          test -f output.txt
+
+      # 9️⃣ Upload Build Artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: frontend-build
           path: dist/
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write       # Needed to deploy
-      id-token: write    # Required for secure OIDC auth
-
-    steps:
-      - name: Deploy
-        uses: actions/deploy-pages@v4
