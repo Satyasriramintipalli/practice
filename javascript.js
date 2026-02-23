@@ -22,3 +22,9 @@ function reset() {
 function toggleTheme() {
     document.body.classList.toggle("dark");
 }
+
+function add(a, b) {
+  return a + b;
+}
+
+module.exports = { add };
