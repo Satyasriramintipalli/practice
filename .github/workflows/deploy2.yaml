@@ -48,8 +48,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      pages: write       # Needed to deploy
-      id-token: write    # Required for secure OIDC auth
+      pages: write       
+      id-token: write    
 
     steps:
       - name: Deploy

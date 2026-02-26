@@ -1,0 +1,20 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  
+
+  workflow_dispatch:  
+
+jobs:
+  call-build-test:
+    uses: ./.github/workflows/build-test.yml
+
+  deploy:
+    needs: call-build-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy
+        run: echo "Deployment step here"
