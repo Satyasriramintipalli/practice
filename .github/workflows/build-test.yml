@@ -1,7 +1,7 @@
 name: Build and Test Workflow
 
 on:
-  workflow_call:   # This makes it reusable
+  workflow_call:  
 
 jobs:
   build-and-test:
